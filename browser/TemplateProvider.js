@@ -39,7 +39,6 @@ module.exports = TemplateProvider;
  */
 function TemplateProvider($nunjucks) {
 	this._nunjucks = $nunjucks;
-	this._templates = {};
 }
 
 /**
@@ -50,20 +49,14 @@ function TemplateProvider($nunjucks) {
 TemplateProvider.prototype._nunjucks = null;
 
 /**
- * Current set of registered templates.
- * @type {Object}
- * @private
- */
-TemplateProvider.prototype._templates = null;
-
-/**
  * Registers compiled (precompiled) Nunjucks template.
  * http://mozilla.github.io/nunjucks/api.html
  * @param {String} name Template name.
  * @param {String} compiled Compiled template source.
  */
 TemplateProvider.prototype.registerCompiled = function (name, compiled) {
-	this._templates[name] = this._nunjucks.compile(compiled);
+	// jshint evil:true
+	eval(compiled);
 };
 
 /**
@@ -73,15 +66,14 @@ TemplateProvider.prototype.registerCompiled = function (name, compiled) {
  * @returns {*}
  */
 TemplateProvider.prototype.render = function (name, data) {
-	if (!this._templates.hasOwnProperty(name)) {
-		return Promise.reject(new Error('No such template'));
-	}
-
-	var promise;
-	try {
-		promise = Promise.resolve(this._templates[name].render(data));
-	} catch(e) {
-		promise = Promise.reject(e);
-	}
-	return promise;
+	var self = this;
+	return new Promise(function (fulfill, reject) {
+		self._nunjucks.render(name, data, function (error, html) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			fulfill(html);
+		});
+	});
 };

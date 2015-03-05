@@ -10,7 +10,7 @@
   "contributors": [],
   "main": "./index.js",
   "browser": {
-    "nunjucks": "./node_modules/nunjucks/browser/nunjucks.js",
+    "nunjucks": "./node_modules/nunjucks/browser/nunjucks-slim.js",
     "./lib/TemplateProvider.js": "./browser/TemplateProvider.js"
   },
   "repository": {
